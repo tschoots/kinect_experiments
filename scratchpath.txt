@@ -1,0 +1,5 @@
+# use raspberry pi 2 for the kinect
+http://blog.bitcollectors.com/adam/2016/01/kinect-support-for-raspberry-pi-using-libfreenect/
+sudo apt-get update -y
+sudo apt-get upgrade -y
+
