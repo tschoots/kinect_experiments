@@ -1,5 +1,102 @@
+pt-get install cmake libudev0 libudev-dev freeglut3 freeglut3-dev libxmu6 libxmu-dev libxi6 libxi-dev
+# install openkinect.org
+sudo apt-get install freenect
+
+# test tool
+freenect-glview
+
+
+# record session
+fakenect-record ./session
+
+
+# more utilities
+freenect-  <tab>
+
 # use raspberry pi 2 for the kinect
 http://blog.bitcollectors.com/adam/2016/01/kinect-support-for-raspberry-pi-using-libfreenect/
 sudo apt-get update -y
 sudo apt-get upgrade -y
+sudo apt-get install cmake libudev0 libudev-dev freeglut3 freeglut3-dev libxmu6 libxmu-dev libxi6 libxi-dev -y
 
+# install latest libusb
+# url to download latest libusb
+https://github.com/libusb/libusb/releases
+
+mkdir ~/src
+cd ~/src
+wget https://github.com/libusb/libusb/releases/download/v1.0.22-rc2/libusb-1.0.22-rc2.tar.bz2
+busb-1.0.22-rc2.tar.bz2
+cd ~/src/libusb-1.0.22-rc2/
+./configure
+make
+sudo make install 
+
+
+# install the latest libreenect
+# url https://github.com/OpenKinect/libfreenect/releases
+cd ~/src
+wget https://github.com/OpenKinect/libfreenect/archive/v0.5.7.tar.gz
+tar -xvf v0.5.7.tar.gz
+cd ~/src/libfreenect-0.5.7/
+mkdir build
+cd build
+cmake -L ..
+make
+sudo make install
+
+
+# now first try to connect with x terminal
+https://www.raspberrypi.org/forums/viewtopic.php?t=133691
+# couldn't get the xterminal working with freenect-glview or glxinfo somehow the opengl doesn't play nice with xterminal
+# was able to start the file manager pcmanfm
+# device when a ssh to the pi is made should be "<hostname of the pi>:10.0" then it worked.
+# ssh -X -Y should be used or "ForwardX11 yes" and "ForwardX11Trusted yes" should be set in /etc/ssh/ssh_config in the client
+# on the pi "X11Forwarding yes" and "X11UseLocalhost no" should be set in /etc/ssh/sshd_config
+# followed the following stuff to get a desktop
+https://www.raspberrypi.org/forums/viewtopic.php?t=133691
+# installed the first desktop "Raspberry Pi Desktop (RPD) GUI"
+https://www.therryvanneerven.nl/how-to-install-raspbian-jessie-on-an-old-raspberry-pi.html
+https://www.scm.com/doc/Installation/Remote_GUI.html
+
+
+# as an alternative i set up a streaming configuration
+https://www.raspberrypi.org/forums/viewtopic.php?f=43&t=69223
+https://blog.miguelgrinberg.com/post/how-to-build-and-run-mjpg-streamer-on-the-raspberry-pi
+
+works with the followin /etc/fswebcam.conf file
+background
+pid /var/run/fswebcam.pid
+log /var/log/fswebcam.log
+#device V4L2:/dev/video0
+device V4L2:/dev/v4l/by-id/usb-Microsoft_Xbox_NUI_Camera_A00366A03314039A-video-index0
+resolution 640x480
+palette UYVY
+jpeg 80
+save /tmp/kinect.jpg
+frames 1
+skip 0
+loop 1
+quiet
+
+# options for config file https://www.systutorials.com/docs/linux/man/1-fswebcam/
+
+
+# and the following start up command
+LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f /tmp -n kinect.jpg" -o "output_http.so -w /usr/local/www"
+# now you can access it with http://<ip pi>:8080
+
+# REMARKS : couldn't get the VLC server working
+
+# for time lapse the following sample command should work
+$ fswebcam -d /dev/video0 -l 10 test-%Y-%m-%d--%H-%M-%S.jpeg
+ fswebcam -d /dev/v4l/by-id/usb-Microsoft_Xbox_NUI_Camera_A00366A03314039A-video-index0 -l 10 test-%Y-%m-%d--%H-%M-%S.jpeg
+# with the following commands you can find the kinect usb device
+lsusb
+usb-devices
+
+
+# interresting golang stuff to use for kinect
+http://grokbase.com/t/gg/golang-nuts/14a6tzt80g/go-nuts-ann-bindings-for-libfreenect-and-skeltrack-kinect-programming-in-go
+https://github.com/velovix/go-skeltrack
+https://github.com/velovix/go-freenect
